@@ -1,3 +1,4 @@
+//k6 arrival-rate performance test
 import http from 'k6/http';
 import { check } from 'k6';
 
