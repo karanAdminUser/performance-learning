@@ -21,8 +21,24 @@ jobs:
       - name: Start nginx container
         run: docker run -d --name karan-web -p 8080:80 karan-web-demo
 
+#      - name: Verify nginx is running
+#        run: curl --fail http://localhost:8080
+
       - name: Verify nginx is running
-        run: curl --fail http://localhost:8080
+        run: |
+          for i in {1..10}; do
+            if curl --fail --silent http://localhost:8080 > /dev/null; then
+              echo "nginx is ready"
+              exit 0
+            fi
+
+            echo "Waiting for nginx..."
+            sleep 1
+          done
+
+          echo "nginx did not become ready"
+          docker logs karan-web
+          exit 1
 
       - name: Setup k6
         uses: grafana/setup-k6-action@v1
