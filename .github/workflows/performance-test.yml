@@ -1,0 +1,33 @@
+name: Performance Test
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build nginx Docker image
+        run: docker build -t karan-web-demo ./docker-web-demo
+
+      - name: Start nginx container
+        run: docker run -d --name karan-web -p 8080:80 karan-web-demo
+
+      - name: Verify nginx is running
+        run: curl --fail http://localhost:8080
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run k6 performance test
+        uses: grafana/run-k6-action@v1
+        with:
+          path: ./08-docker-nginx-test.js
